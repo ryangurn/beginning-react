@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {array, func} from "prop-types";
+import {array, func, number} from "prop-types";
 import TodoItemsRemaining from "./TodoItemsRemaining";
 import TodoClearCompleted from "./TodoClearCompleted";
 import TodoCompleteAllTodos from "./TodoCompleteAllTodos";
@@ -12,7 +12,7 @@ TodoList.propTypes = {
     updateTodo: func.isRequired,
     cancelEdit: func.isRequired,
     deleteTodo: func.isRequired,
-    remaining: func.isRequired,
+    remaining: number.isRequired,
     clearCompleted: func.isRequired,
     completeAllTodos: func.isRequired,
     todosFiltered: func.isRequired,
