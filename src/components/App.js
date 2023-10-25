@@ -21,13 +21,46 @@ function App() {
         }
     ]);
 
+    const [todoInput, setTodoInput] = useState('');
+    const [idForTodo, setIdForTodo] = useState(4);
+
+    function addTodo(event) {
+        // prevents the browser from submitting the form
+        event.preventDefault();
+
+        // check if the string is empty
+        if (todoInput.trim().length === 0)
+            return;
+
+        // ... copies the array
+        setTodos([...todos, {
+            id: idForTodo,
+            title: todoInput,
+            isComplete: false
+        }]);
+
+        setTodoInput('');
+        setIdForTodo(prevIdForTodo => prevIdForTodo + 1);
+        // setIdForTodo(idForTodo + 1);
+    }
+
+    function deleteTodo(id) {
+        setTodos([...todos].filter(todo => todo.id !== id));
+    }
+
+    function handleInput(event) {
+        setTodoInput(event.target.value);
+    }
+
     return (
         <div className="todo-app-container">
             <div className="todo-app">
                 <h2>Todo App</h2>
-                <form action="#">
+                <form action="#" onSubmit={addTodo}>
                     <input
                         type="text"
+                        value={todoInput}
+                        onChange={handleInput} // could also be onChange={(event) => { setTodoInput(event.target.value) }}
                         className="todo-input"
                         placeholder="What do you need to do?"
                     />
@@ -35,13 +68,13 @@ function App() {
 
                 <ul className="todo-list">
                     {todos.map((todo, index) => (
-                        <li className="todo-item-container">
+                        <li key={todo.id} className="todo-item-container">
                             <div className="todo-item">
                                 <input type="checkbox"/>
                                 <span className="todo-item-label">{todo.title}</span>
                                 {/* <input type="text" className="todo-item-input" value="Finish React Series" /> */}
                             </div>
-                            <button className="x-button">
+                            <button onClick={() => deleteTodo(todo.id)} className="x-button">
                                 <svg
                                     className="x-button-icon"
                                     fill="none"
