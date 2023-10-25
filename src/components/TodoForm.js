@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import PropTypes from "prop-types";
+import {func} from "prop-types";
 
 TodoForm.propTypes = {
-    addTodo: PropTypes.func.isRequired,
+    addTodo: func.isRequired,
 }
 
 function TodoForm(props) {
