@@ -1,117 +1,20 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import '../reset.css';
 import '../App.css';
 import NoTodos from "./NoTodos";
 import TodoForm from "./TodoForm";
 import TodoList from "./TodoList";
 import useLocalStorage from "../hooks/useLocalStorage";
+import {TodosContext} from "../context/TodosContext";
 
 function App() {
-    // const [name, setName] = useState('');
     const [name, setName] = useLocalStorage('name', '');
     const nameInputEl = useRef(null);
     const [todos, setTodos] = useLocalStorage('todos', []);
-    // const [todos, setTodos] = useState([
-    //     {
-    //         id: 1,
-    //         title: 'Finish React Series',
-    //         isComplete: false,
-    //         isEditing: false,
-    //     },
-    //     {
-    //         id: 2,
-    //         title: 'Go Shopping',
-    //         isComplete: true,
-    //         isEditing: false,
-    //     },
-    //     {
-    //         id: 3,
-    //         title: 'Take over the world',
-    //         isComplete: false,
-    //         isEditing: false,
-    //     }
-    // ]);
-
-
-    // const [idForTodo, setIdForTodo] = useState(4);
     const [idForTodo, setIdForTodo] = useLocalStorage('idForTodo', 1);
+    const [filter, setFilter] = useState('all');
 
-    function addTodo(todo) {
-        // ... copies the array
-        setTodos([...todos, {
-            id: idForTodo,
-            title: todo,
-            isComplete: false
-        }]);
-
-        setIdForTodo(prevIdForTodo => prevIdForTodo + 1);
-        // setIdForTodo(idForTodo + 1);
-    }
-
-    function deleteTodo(id) {
-        setTodos([...todos].filter(todo => todo.id !== id));
-    }
-
-    function completeTodo(id) {
-        const updatedTodos = todos.map(todo => {
-            if (todo.id === id)
-                todo.isComplete = !todo.isComplete;
-
-            return todo;
-        });
-
-        setTodos(updatedTodos);
-    }
-
-    function markAsEditing(id) {
-        const updatedTodos = todos.map(todo => {
-            if (todo.id === id)
-                todo.isEditing = !todo.isEditing;
-
-            return todo;
-        });
-
-        setTodos(updatedTodos);
-    }
-
-    function updateTodo(event, id) {
-        const updatedTodos = todos.map(todo => {
-            if (todo.id === id) {
-                todo.isEditing = false;
-                if (event.target.value.trim().length === 0) {
-                    return todo;
-                }
-
-                todo.title = event.target.value;
-            }
-
-            return todo;
-        });
-
-        setTodos(updatedTodos);
-    }
-
-    function remainingCalculation() {
-        return todos.filter(todo => !todo.isComplete).length;
-    }
-
-    const remaining = useMemo(remainingCalculation, [todos]);
-
-    function clearCompleted() {
-        setTodos([...todos].filter(todo => !todo.isComplete))
-    }
-
-    function completeAllTodos() {
-        const updatedTodos = todos.map(todo => {
-            todo.isComplete = true;
-
-            return todo;
-        });
-
-        setTodos(updatedTodos);
-    }
-
-    function todosFiltered(filter) {
+    function todosFiltered() {
         if (filter === 'all') {
             return todos;
         } else if (filter === 'active') {
@@ -123,46 +26,42 @@ function App() {
 
     function handleNameInput(event) {
         setName(event.target.value);
-        // localStorage.setItem('name', JSON.stringify(event.target.value));
     }
 
     useEffect(() => {
         nameInputEl.current.focus()
-
-        // setName(JSON.parse(localStorage.getItem('name')) ?? null);
     }, []);
 
     return (
-        <div className="todo-app-container">
-            <div className="todo-app">
-                <div className="name-container">
-                    <h2>What is your name?</h2>
-                    <form action="#">
-                        <input type="text"
-                               ref={nameInputEl}
-                               className="todo-input"
-                               placeholder="What is your name?"
-                               value={name}
-                               onChange={handleNameInput}/>
-                    </form>
+        <TodosContext.Provider value={{todos, setTodos, idForTodo, setIdForTodo, todosFiltered, filter, setFilter}}>
+            <div className="todo-app-container">
+                <div className="todo-app">
+                    <div className="name-container">
+                        <h2>What is your name?</h2>
+                        <form action="#">
+                            <input type="text"
+                                   ref={nameInputEl}
+                                   className="todo-input"
+                                   placeholder="What is your name?"
+                                   value={name}
+                                   onChange={handleNameInput}/>
+                        </form>
 
-                    {name && <p className="name-label">Hello, {name}</p>}
+                        {name && <p className="name-label">Hello, {name}</p>}
+                    </div>
+                    <h2>Todo App</h2>
+                    <TodoForm/>
+
+                    {
+                        todos.length > 0 ? (
+                            <TodoList />
+                        ) : (
+                            <NoTodos/>
+                        )
+                    }
                 </div>
-                <h2>Todo App</h2>
-                <TodoForm addTodo={addTodo}/>
-
-                {
-                    todos.length > 0 ? (
-                        <TodoList todos={todos} completeTodo={completeTodo} markAsEditing={markAsEditing}
-                                  updateTodo={updateTodo} cancelEdit={markAsEditing} deleteTodo={deleteTodo}
-                                  remaining={remaining} clearCompleted={clearCompleted}
-                                  completeAllTodos={completeAllTodos} todosFiltered={todosFiltered}/>
-                    ) : (
-                        <NoTodos/>
-                    )
-                }
             </div>
-        </div>
+        </TodosContext.Provider>
     );
 }
 
